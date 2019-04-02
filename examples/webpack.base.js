@@ -3,12 +3,12 @@ const path = require('path');
 const nodeExternals = require('webpack-node-externals');
 const LambdaWebpackPlugin = require('../src');
 const getEntries = pattern => {
-  console.log(pattern, glob.sync(pattern))
+  console.log(pattern, glob.sync(pattern));
   return glob.sync(pattern).reduce((acc, file) => {
-  acc[file] = path.join(__dirname, '..', file);
-    return acc
+    acc[file] = path.join(__dirname, '..', file);
+    return acc;
   }, {});
-}
+};
 const baseDeployment = 'dist';
 const tsRule = {
   test: /\.ts?$/,
@@ -21,36 +21,33 @@ const tsRule = {
 };
 const MIDDLEWARE = 'middleware';
 const DATABASE = 'database';
-const localExternals = [
-  MIDDLEWARE,
-  DATABASE
-];
+const localExternals = [MIDDLEWARE, DATABASE];
 
 const aliases = {
   [MIDDLEWARE]: path.resolve(__dirname, 'src/middleware/'),
-  [DATABASE]: path.resolve(__dirname, 'src/database/'),
+  [DATABASE]: path.resolve(__dirname, 'src/database/')
 };
 
 const middlewareWebpackConfig = {
-    mode: 'none',
-    entry: {
-      library: path.resolve(__dirname, './src/middleware/index.ts')
-    },
-    externals: [nodeExternals(), ...localExternals],
-    target: 'node',
-    module: {
-      rules: [tsRule]
-    },
-    resolve: {
-      extensions: ['.ts', '.js']
-    },
-    output: {
-      library: 'middleware',
-      filename: 'index.js',
-      libraryTarget: 'commonjs',
-      path: path.resolve(__dirname, `${baseDeployment}/${MIDDLEWARE}`)
-    }
-  };
+  mode: 'none',
+  entry: {
+    library: path.resolve(__dirname, './src/middleware/index.ts')
+  },
+  externals: [nodeExternals(), ...localExternals],
+  target: 'node',
+  module: {
+    rules: [tsRule]
+  },
+  resolve: {
+    extensions: ['.ts', '.js']
+  },
+  output: {
+    library: 'middleware',
+    filename: 'index.js',
+    libraryTarget: 'commonjs',
+    path: path.resolve(__dirname, `${baseDeployment}/${MIDDLEWARE}`)
+  }
+};
 
 const databaseWebpackConfig = {
   mode: 'none',
@@ -96,6 +93,7 @@ const lambdaFunctions = {
         [DATABASE]: databaseWebpackConfig.output.path,
         [MIDDLEWARE]: middlewareWebpackConfig.output.path
       },
+      output: './examples/lambda-sam-deploy',
       baseTemplate: path.resolve(__dirname, './template.json')
     })
   ]
@@ -107,5 +105,5 @@ module.exports = {
   baseDeployment,
   databaseWebpackConfig,
   middlewareWebpackConfig,
-  lambdaFunctions,
+  lambdaFunctions
 };

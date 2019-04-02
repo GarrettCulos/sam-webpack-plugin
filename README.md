@@ -1,17 +1,3 @@
-## TODO
-
-x add plugin options verification
-x expand on jsdoc descriptions
-
-x add docs on how plugin works.
-
-- create git project (prettier, ci/cd to npm, example projects)
-
-- add tests
-- deploy to npm
-- add plugin JSON object verification
-- explore decorator loader for @WebpackLambda
-
 ## Getting Started
 
 Requirements: webpack knowledge
@@ -63,3 +49,17 @@ On build, FOR EACH entry having the `@WebpackLambda` decorator, the content with
 ## Working with local external packages
 
 - user layers option to import locally defined external packages into your lambda function deployment packages.
+
+## TODO
+
+x add plugin options verification
+x expand on jsdoc descriptions
+
+x add docs on how plugin works.
+
+x create git project (prettier, ci/cd to npm, example projects)
+
+- add tests
+- deploy to npm
+- add plugin JSON object verification
+- explore decorator loader for @WebpackLambda

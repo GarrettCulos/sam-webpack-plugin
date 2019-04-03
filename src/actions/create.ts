@@ -1,4 +1,4 @@
-const fs = require('fs');
+import fs from 'fs';
 
 /**
  * Execute create action
@@ -31,4 +31,4 @@ function createAction(command, options) {
     });
 }
 
-module.exports = { createAction };
+export { createAction };

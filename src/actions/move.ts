@@ -1,5 +1,5 @@
-const fs = require('fs');
-const mv = require('mv');
+import fs from 'fs';
+import mv from 'mv';
 
 /**
  * Execute move action
@@ -53,4 +53,4 @@ function moveAction(command, options) {
   }
 }
 
-module.exports = { moveAction };
+export { moveAction };

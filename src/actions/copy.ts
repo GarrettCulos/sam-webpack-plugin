@@ -1,8 +1,8 @@
-const fs = require('fs');
-const path = require('path');
-const cpx = require('cpx');
-const fsExtra = require('fs-extra');
-const makeDir = require('make-dir');
+import fs from 'fs';
+import path from 'path';
+import cpx from 'cpx';
+import fsExtra from 'fs-extra';
+import makeDir from 'make-dir';
 
 /**
  * Execute copy action
@@ -116,4 +116,4 @@ function copyDirectory(source, destination, resolve, reject, options) {
   });
 }
 
-module.exports = { copyAction };
+export { copyAction };

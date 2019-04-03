@@ -29,4 +29,4 @@ function rimrafAction(command, options) {
     });
 }
 
-module.exports = { rimrafAction };
+export { rimrafAction };

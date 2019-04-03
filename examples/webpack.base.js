@@ -1,7 +1,7 @@
 const glob = require('glob');
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
-const LambdaWebpackPlugin = require('../src');
+const SamWebpackPlugin = require('../dist/prod');
 const getEntries = pattern => {
   console.log(pattern, glob.sync(pattern));
   return glob.sync(pattern).reduce((acc, file) => {
@@ -88,7 +88,7 @@ const lambdaFunctions = {
     path: path.resolve(__dirname, `${baseDeployment}`)
   },
   plugins: [
-    new LambdaWebpackPlugin({
+    new SamWebpackPlugin({
       layers: {
         [DATABASE]: databaseWebpackConfig.output.path,
         [MIDDLEWARE]: middlewareWebpackConfig.output.path

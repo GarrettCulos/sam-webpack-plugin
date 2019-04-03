@@ -2,7 +2,7 @@
 
 Requirements: webpack knowledge
 
-Import `LambdaWebpackPlugin` into your webpack config file.
+Import `SamWebpackPlugin` into your webpack config file.
 
 Add the plugin to the webpack plugin block,
 
@@ -10,7 +10,7 @@ Add the plugin to the webpack plugin block,
     ...
     plugins:[
         ...
-        new LambdaWebpackPlugin({
+        new SamWebpackPlugin({
             baseTemplate: './template.json'
         })
         ...

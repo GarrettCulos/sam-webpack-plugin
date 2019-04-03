@@ -1,9 +1,15 @@
-const fs = require('fs');
-const path = require('path');
-const { createAction, mkdirAction, rimrafAction, copyAction } = require('./actions');
-const pluginName = 'LambdaWebpackPlugin';
+import fs from 'fs';
+import path from 'path';
+import { createAction, mkdirAction, rimrafAction, copyAction } from './actions';
+const pluginName = 'SamWebpackPlugin';
 
-class LambdaWebpackPlugin {
+class SamWebpackPlugin {
+  declarationRegex = /(?<=@WebpackLambda\()([^\)]+)(?=(\)))/g;
+  deploymentFolder: string;
+  options: { [optionName: string]: any };
+  layers: { [optionName: string]: string };
+  baseTemplate: any;
+
   /**
    * @param {Object} options
    * @param {String} options.baseTemplate [required]
@@ -11,44 +17,42 @@ class LambdaWebpackPlugin {
    * @param {String} options.output
    * @param {Boolean} options.verbose
    */
-  constructor({ output, verbose, layers, baseTemplate }) {
+  constructor(d: { output: string; verbose: boolean; layers: { [name: string]: string }; baseTemplate: string }) {
     /**
      * define regex's
      */
-    this.declarationRegex = /(?<=@WebpackLambda\()([^\)]+)(?=(\)))/g;
-    this.filenameRegex = /\w+(?:\.\w+)*$/;
 
     /**
      * deployment folder that holds all deployment functions
      */
-    if (output && typeof output !== 'string') {
+    if (d.output && typeof d.output !== 'string') {
       throw `[${pluginName}]: options.output must be of type String`;
     }
-    this.deploymentFolder = output || './lambda-sam-deploy';
+    this.deploymentFolder = d.output || './lambda-sam-deploy';
 
     /**
      * verbose setting must be a boolean if set
      */
-    if (verbose && typeof verbose !== 'boolean') {
+    if (d.verbose && typeof d.verbose !== 'boolean') {
       throw `[${pluginName}]: options.output must be a boolean`;
     }
-    this.options = { verbose: verbose || false };
+    this.options = { verbose: d.verbose || false };
 
     /**
      * layers setting must be an array if set
      */
-    if (Boolean(layers) && typeof layers !== 'object') {
+    if (Boolean(d.layers) && typeof d.layers !== 'object') {
       throw `[${pluginName}]: options.layers must be of type object`;
     }
-    this.layers = layers;
+    this.layers = d.layers;
 
     /**
      * baseTemplate must be of type string
      */
-    if (!baseTemplate || typeof baseTemplate !== 'string') {
+    if (!d.baseTemplate || typeof d.baseTemplate !== 'string') {
       throw `[${pluginName}]: options.baseTemplate must be of defined and of type String`;
     }
-    this.baseTemplate = JSON.parse(fs.readFileSync(baseTemplate, 'utf8'));
+    this.baseTemplate = JSON.parse(fs.readFileSync(d.baseTemplate, 'utf8'));
   }
 
   /**
@@ -56,7 +60,7 @@ class LambdaWebpackPlugin {
    * @param {String} content
    * @returns {Object}
    */
-  parseLambdaDeclaration(content) {
+  parseLambdaDeclaration(content: string): object {
     // TODO handle error when parsing @WebpackLambda decorator;
     const match = content.match(this.declarationRegex);
     if (!match) return;
@@ -204,6 +208,7 @@ class LambdaWebpackPlugin {
         /**
          * merge entry with base cf template
          */
+        // TODO: when file name is already in the template throw error.
         this.baseTemplate = {
           ...this.baseTemplate,
           Resources: {
@@ -243,4 +248,4 @@ class LambdaWebpackPlugin {
   }
 }
 
-module.exports = LambdaWebpackPlugin;
+module.exports = SamWebpackPlugin;

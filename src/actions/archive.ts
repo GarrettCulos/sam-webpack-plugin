@@ -1,6 +1,6 @@
-const fs = require('fs-extra');
-const path = require('path');
-const archiver = require('archiver');
+import fs from 'fs-extra';
+import path from 'path';
+import archiver from 'archiver';
 
 /**
  * Execute mkdir action
@@ -50,4 +50,4 @@ function archiveAction(command, options) {
     });
 }
 
-module.exports = { archiveAction };
+export { archiveAction };

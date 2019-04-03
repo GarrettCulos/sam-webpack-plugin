@@ -1,4 +1,4 @@
-const makeDir = require('make-dir');
+import makeDir from 'make-dir';
 
 /**
  * Execute mkdir action
@@ -25,4 +25,4 @@ function mkdirAction(command, options) {
   };
 }
 
-module.exports = { mkdirAction };
+export { mkdirAction };

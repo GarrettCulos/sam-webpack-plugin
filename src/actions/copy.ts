@@ -10,7 +10,7 @@ import makeDir from 'make-dir';
  * @param {Object} command - Command data for given action
  * @return {Function|null} - Function that returns a promise or null
  */
-function copyAction(command, options) {
+function copyAction(command: any, options: any) {
   const { verbose } = options;
 
   if (!command.source || !command.destination) {
@@ -53,7 +53,7 @@ function copyAction(command, options) {
 
               const pathInfo = path.parse(destination);
 
-              const execCopy = (src, dest) => {
+              const execCopy = (src: string, dest: string) => {
                 fsExtra.copy(src, dest, err => {
                   if (err) reject(err);
                   resolve();
@@ -88,7 +88,7 @@ function copyAction(command, options) {
  * @param {Function} reject - function used to reject a Promise
  * @return {void}
  */
-function copyDirectory(source, destination, resolve, reject, options) {
+function copyDirectory(source: string, destination: string, resolve: Function, reject: Function, options: any) {
   const { verbose } = options;
 
   /* cpx options */

@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { createAction, mkdirAction, rimrafAction, copyAction } from './actions';
+import webpack = require('webpack');
 const pluginName = 'SamWebpackPlugin';
 
 class SamWebpackPlugin {
@@ -72,8 +73,8 @@ class SamWebpackPlugin {
    * @param {Array} dependencies
    * @returns {String[]}
    */
-  logDependencies(dependencies) {
-    const deps = [];
+  logDependencies(dependencies: any[]) {
+    const deps: { request: string; [other: string]: any }[] = [];
     Array.isArray(dependencies) &&
       dependencies.forEach(dependency => {
         if (dependency.request) {
@@ -92,7 +93,7 @@ class SamWebpackPlugin {
     return deps;
   }
 
-  apply(compiler) {
+  apply(compiler: any) {
     const plugin = {
       name: pluginName
     };
@@ -111,7 +112,7 @@ class SamWebpackPlugin {
      * @param {*} context
      * @param {*} entries
      */
-    const registerEntryLambdaFunctions = (context, entries) => {
+    const registerEntryLambdaFunctions = (context: any, entries: any) => {
       // register entries with lambda function parser
       globals.entries = Object.keys(entries).reduce((acc, entry) => {
         const content = fs.readFileSync(entries[entry], 'utf8');
@@ -139,8 +140,8 @@ class SamWebpackPlugin {
      * @param {*} compilation
      * @param {*} callback
      */
-    const addConfigDependencies = (compilation, callback) => {
-      compilation.chunks.forEach(chunk => {
+    const addConfigDependencies = (compilation: any, callback: any) => {
+      compilation.chunks.forEach((chunk: any) => {
         if (globals.entries[chunk.name]) {
           globals.entries[chunk.name].files = chunk.files;
           globals.entries[chunk.name].dependencies = this.logDependencies(chunk.entryModule.dependencies);
@@ -156,7 +157,7 @@ class SamWebpackPlugin {
      * @param {*} compilation
      * @param {*} callback
      */
-    const createLambdaDeployments = (compilation, callback) => {
+    const createLambdaDeployments = (compilation: any, callback: any) => {
       const entries = Object.keys(globals.entries).map(key => globals.entries[key]);
       const commands = [];
 
@@ -177,7 +178,7 @@ class SamWebpackPlugin {
         /**
          * move lambda function
          */
-        entry.files.forEach(file => {
+        entry.files.forEach((file: any) => {
           // when we can compute the function name, add in standard index.js handler
           // path.join(entryPath, 'index.js')
           commands.push(
@@ -193,7 +194,7 @@ class SamWebpackPlugin {
         /**
          * copy dependencies into node_modules folder ( or ??? create requirements.txt)
          */
-        entry.dependencies.forEach(dependency => {
+        entry.dependencies.forEach((dependency: any) => {
           let source = undefined;
           if (this.layers[dependency.request]) {
             source = this.layers[dependency.request];
@@ -234,7 +235,7 @@ class SamWebpackPlugin {
       );
 
       if (commands.length) {
-        commands.reduce((previous, fn) => {
+        commands.reduce((previous: Promise<any>, fn: Function) => {
           return previous.then(retVal => fn(retVal)).catch(err => console.log(err));
         }, Promise.resolve());
       }

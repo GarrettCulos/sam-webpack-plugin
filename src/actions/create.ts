@@ -6,7 +6,7 @@ import fs from 'fs';
  * @param {Object} command - Command data for given action
  * @return {Function|null} - Function that returns a promise or null
  */
-function createAction(command, options) {
+function createAction(command: any, options: any) {
   const { verbose } = options;
 
   if (!command.source || !command.content) {

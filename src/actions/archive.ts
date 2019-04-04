@@ -8,7 +8,7 @@ import archiver from 'archiver';
  * @param {Object} command - Command data for given action
  * @return {Function|null} - Function that returns a promise or null
  */
-function archiveAction(command, options) {
+function archiveAction(command: any, options: any) {
   const { verbose } = options;
 
   return () =>
@@ -45,7 +45,8 @@ function archiveAction(command, options) {
             cwd: command.source,
             ignore: destFile
           });
-        archive.finalize().then(() => resolve());
+        archive.finalize();
+        resolve();
       });
     });
 }

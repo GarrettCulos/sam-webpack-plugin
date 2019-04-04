@@ -7,7 +7,7 @@ import mv from 'mv';
  * @param {Object} command - Command data for given action
  * @return {Function|null} - Function that returns a promise or null
  */
-function moveAction(command, options) {
+function moveAction(command: any, options: any) {
   const { verbose } = options;
 
   if (!command.source || !command.destination) {

@@ -12,12 +12,12 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v-deps-{{ .Branch }}-{{ checksum "package.lock" }}
+            - v-deps-{{ .Branch }}-{{ checksum "package-lock.json" }}
             - v-deps-{{ .Branch }}-
             - v-deps-
       - run: npm install
       - save_cache:
-          key: v-deps-{{ .Branch }}-{{ checksum "package.lock" }}
+          key: v-deps-{{ .Branch }}-{{ checksum "package-lock.json" }}
           paths:
             - node_modules/
   test:

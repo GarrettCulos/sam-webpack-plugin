@@ -6,7 +6,7 @@ import rimraf from 'rimraf';
  * @param {Object} command - Command data for given action
  * @return {Function|null} - Function that returns a promise or null
  */
-function rimrafAction(command, options) {
+function rimrafAction(command: any, options: any) {
   const { verbose } = options;
 
   if (!command.source) {

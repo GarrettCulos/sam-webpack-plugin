@@ -20,7 +20,10 @@ jobs:
           key: v-deps-{{ .Branch }}-{{ checksum "package-lock.json" }}
           paths:
             - node_modules/
-
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - sam-webpack-plugin
   test:
     <<: *defaults
     steps:
@@ -64,15 +67,12 @@ workflows:
               only: master
       - build:
           requires:
-            - install
             - test
           filters:
             branches:
               only: master
       - publish:
           requires:
-            - install
-            - test
             - build
           filters:
             branches:

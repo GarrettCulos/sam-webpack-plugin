@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import { createAction, mkdirAction, rimrafAction, copyAction } from './actions';
-import webpack = require('webpack');
 const pluginName = 'SamWebpackPlugin';
 
 class SamWebpackPlugin {

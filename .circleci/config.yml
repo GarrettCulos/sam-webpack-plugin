@@ -46,7 +46,7 @@ workflows:
   install-test-build:
     jobs:
       - install:
-          filter:
+          filters:
             branches:
               only: master
       - test:

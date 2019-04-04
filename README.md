@@ -1,3 +1,11 @@
+<p>
+  <a href="https://circleci.com/gh/garrettculos/sam-webpack-plugin/tree/dev"><img src="https://img.shields.io/circleci/project/github/garrettculos/sam-webpack-plugin/dev.svg" alt="Build Status"></a>
+  <a href="https://codecov.io/github/garrettculos/sam-webpack-plugin?branch=dev"><img src="https://img.shields.io/codecov/c/github/garrettculos/sam-webpack-plugin/dev.svg" alt="Coverage Status"></a>
+  <a href="https://www.npmjs.com/package/sam-webpack-plugin"><img src="https://img.shields.io/npm/dt/sam-webpack-plugin.svg" alt="Downloads"></a>
+  <a href="https://www.npmjs.com/package/sam-webpack-plugin"><img src="https://img.shields.io/npm/v/vue.svg" alt="Version"></a>
+  <a href="https://www.npmjs.com/package/sam-webpack-plugin"><img src="https://img.shields.io/npm/l/vue.svg" alt="License"></a>
+</p>
+
 ## Getting Started
 
 Requirements: webpack knowledge

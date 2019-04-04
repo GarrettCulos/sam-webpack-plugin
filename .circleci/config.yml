@@ -52,14 +52,14 @@ workflows:
       - test:
           requires:
             - install
-          filter:
+          filters:
             branches:
               only: master
       - build:
           requires:
             - install
             - test
-          filter:
+          filters:
             branches:
               only: master
       - publish:
@@ -67,6 +67,6 @@ workflows:
             - install
             - test
             - build
-          filter:
+          filters:
             branches:
               only: master

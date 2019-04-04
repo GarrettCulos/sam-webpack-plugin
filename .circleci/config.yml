@@ -8,7 +8,7 @@ defaults: &defaults
 masterRelease: &masterRelease
   filters:
     branches:
-      only: master
+      ignore: /.*/
     tags:
       only: /^v.*/
 

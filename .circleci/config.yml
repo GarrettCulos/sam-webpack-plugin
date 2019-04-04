@@ -79,7 +79,7 @@ workflows:
           filters:
             branches:
               only: master
-  test-deploy:
+  release-deploy:
     jobs:
       - install:
           <<: *masterRelease
@@ -95,7 +95,3 @@ workflows:
           <<: *masterRelease
           requires:
             - build
-      - deploy:
-          <<: *masterRelease
-          requires:
-            - test

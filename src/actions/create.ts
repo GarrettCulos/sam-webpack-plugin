@@ -14,7 +14,7 @@ function createAction(command, options) {
       console.log(
         '  - Lambda Webpack Plugin: Warning - creat parameter has to be formated as follows: { source: <string>, content: <string> }'
       );
-    return null;
+    return;
   }
 
   return () =>

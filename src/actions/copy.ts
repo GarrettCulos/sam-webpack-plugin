@@ -19,7 +19,7 @@ function copyAction(command, options) {
         '  - FileManagerPlugin: Warning - copy parameter has to be formated as follows: { source: <string>, destination: <string> }'
       );
     }
-    return null;
+    return;
   }
 
   return () =>
@@ -29,7 +29,7 @@ function copyAction(command, options) {
       const fileRegex = /(\*|\{+|\}+)/g;
       const matches = fileRegex.exec(command.source);
 
-      if (matches === null) {
+      if (matches === undefined) {
         fs.lstat(command.source, (sErr, sStats) => {
           if (sErr) return reject(sErr);
 

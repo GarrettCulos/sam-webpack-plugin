@@ -16,7 +16,7 @@ function moveAction(command, options) {
         '  - Lambda Webpack Plugin: Warning - move parameter has to be formated as follows: { source: <string>, destination: <string> }'
       );
     }
-    return null;
+    return;
   }
 
   if (fs.existsSync(command.source)) {
@@ -49,7 +49,7 @@ function moveAction(command, options) {
       });
   } else {
     process.emitWarning('  - Lambda Webpack Plugin: Could not move ' + command.source + ': path does not exist');
-    return null;
+    return;
   }
 }
 

@@ -1,4 +1,4 @@
-var rimraf = require('rimraf');
+import rimraf from 'rimraf';
 
 /**
  * Execute remove action
@@ -15,7 +15,7 @@ function rimrafAction(command, options) {
         '  - Lambda Webpack Plugin: Warning - remove parameter has to be formated as follows: { source: <string> }'
       );
 
-    return null;
+    return undefined;
   }
 
   return () =>

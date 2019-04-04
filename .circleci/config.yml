@@ -1,9 +1,9 @@
 version: 2.0
 
 defaults: &defaults
+  working_directory: ~/sam-webpack-plugin
   docker:
     - image: circleci/node:chakracore-10.13.0
-  working_directory: ~/sam-webpack-plugin
 
 jobs:
   install:

@@ -30,6 +30,5 @@ const baseConfig = {
 };
 
 module.exports = {
-  baseDeployment,
   baseConfig
 };

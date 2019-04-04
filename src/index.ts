@@ -73,7 +73,7 @@ class SamWebpackPlugin {
    * @returns {String[]}
    */
   logDependencies(dependencies) {
-    let deps = [];
+    const deps = [];
     Array.isArray(dependencies) &&
       dependencies.forEach(dependency => {
         if (dependency.request) {
@@ -100,7 +100,7 @@ class SamWebpackPlugin {
     /**
      * globally available data
      */
-    const globals = {
+    const globals: any = {
       entries: {},
       outputPath: compiler.options.output.path,
       deployFolder: path.join(compiler.options.context, this.deploymentFolder)
@@ -194,7 +194,7 @@ class SamWebpackPlugin {
          * copy dependencies into node_modules folder ( or ??? create requirements.txt)
          */
         entry.dependencies.forEach(dependency => {
-          let source = null;
+          let source = undefined;
           if (this.layers[dependency.request]) {
             source = this.layers[dependency.request];
           } else {

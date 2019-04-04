@@ -1,6 +1,6 @@
 const merge = require('webpack-merge');
 const path = require('path');
-const { baseConfig, baseDeployment } = require('./webpack.base');
+const { baseConfig } = require('./webpack.base');
 const devConfig = {
   mode: 'production',
   output: {

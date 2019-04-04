@@ -18,7 +18,7 @@ function mkdirAction(command, options) {
       if (verbose) {
         console.log('  - Lambda Webpack Plugin: Warning - mkdir parameter has to be type of string. Process canceled.');
       }
-      return null;
+      return;
     }
 
     return makeDir(command.source);

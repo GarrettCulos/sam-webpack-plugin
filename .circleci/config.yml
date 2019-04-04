@@ -3,7 +3,7 @@ version: 2.0
 defaults: &defaults
   working_directory: ~/sam-webpack-plugin
   docker:
-    - image: circleci/node:chakracore-10.13.0
+    - image: circleci/node:9.11.1
 
 jobs:
   install:
@@ -24,6 +24,7 @@ jobs:
           root: ~/
           paths:
             - sam-webpack-plugin
+
   test:
     <<: *defaults
     steps:

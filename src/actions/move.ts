@@ -48,7 +48,7 @@ function moveAction(command: any, options: any) {
         });
       });
   } else {
-    process.emitWarning('  - Lambda Webpack Plugin: Could not move ' + command.source + ': path does not exist');
+    process.emitWarning(`  - Lambda Webpack Plugin: Could not move ${command.source}: path does not exist`);
     return;
   }
 }

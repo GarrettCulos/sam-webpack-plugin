@@ -28,7 +28,7 @@ jobs:
     <<: *defaults
     steps:
       - attach_workspace:
-          at: ~/sam-webpack-plugin
+          at: ~/
       - run: npm run lint
       - run: npm run test
 
@@ -36,14 +36,14 @@ jobs:
     <<: *defaults
     steps:
       - attach_workspace:
-          at: ~/sam-webpack-plugin
+          at: ~/
       - run: npm run build.prod
 
   publish:
     <<: *defaults
     steps:
       - attach_workspace:
-          at: ~/sam-webpack-plugin
+          at: ~/
       - run:
           name: Authenticate with registry
           command: echo "//registry.npmjs.org/:_authToken=$NPM_PUBLISH_TOKEN" > ~/repo/.npmrc

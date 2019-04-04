@@ -5,6 +5,13 @@ defaults: &defaults
   docker:
     - image: circleci/node:9.11.1
 
+masterRelease: &masterRelease
+  filters:
+    branches:
+      only: master
+    tags:
+      only: /^v.*/
+
 jobs:
   install:
     <<: *defaults
@@ -72,9 +79,23 @@ workflows:
           filters:
             branches:
               only: master
+  test-deploy:
+    jobs:
+      - install:
+          <<: *masterRelease
+      - test:
+          <<: *masterRelease
+          requires:
+            - install
+      - build:
+          <<: *masterRelease
+          requires:
+            - test
       - publish:
+          <<: *masterRelease
           requires:
             - build
-          filters:
-            branches:
-              only: master
+      - deploy:
+          <<: *masterRelease
+          requires:
+            - test

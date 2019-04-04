@@ -21,9 +21,7 @@ jobs:
           paths:
             - node_modules/
       - persist_to_workspace:
-          root: ~/
-          paths:
-            - sam-webpack-plugin
+          root: ~/sam-webpack-plugin
   test:
     <<: *defaults
     steps:

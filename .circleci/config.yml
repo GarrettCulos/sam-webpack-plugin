@@ -1,0 +1,72 @@
+version: 2.0
+
+defaults: &defaults
+  docker:
+    - image: circleci/node:chakracore-10.13.0
+  working_directory: ~/sam-webpack-plugin
+
+jobs:
+  install:
+    <<: *defaults
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v-deps-{{ .Branch }}-{{ checksum "package.lock" }}
+            - v-deps-{{ .Branch }}-
+            - v-deps-
+      - run: npm install
+      - save_cache:
+          key: v-deps-{{ .Branch }}-{{ checksum "package.lock" }}
+          paths:
+            - node_modules/
+  test:
+    <<: *defaults
+    steps:
+      - run: npm run lint
+      - run: npm run test
+
+  build:
+    <<: *defaults
+    steps:
+      - run: npm run build.prod
+
+  publish:
+    <<: *defaults
+    steps:
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_PUBLISH_TOKEN" > ~/repo/.npmrc
+      - run:
+          name: Publish package
+          command: npm publish
+
+workflows:
+  version: 2
+  install-test-build:
+    jobs:
+      - install:
+          filter:
+            branches:
+              only: master
+      - test:
+          requires:
+            - install
+          filter:
+            branches:
+              only: master
+      - build:
+          requires:
+            - install
+            - test
+          filter:
+            branches:
+              only: master
+      - publish:
+          requires:
+            - install
+            - test
+            - build
+          filter:
+            branches:
+              only: master

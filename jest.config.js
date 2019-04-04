@@ -8,7 +8,7 @@ module.exports = {
   transform: {
     '^.+\\.(ts|tsx)$': './node_modules/ts-jest/preprocessor.js'
   },
-  testMatch: ['**/**/*.test.(ts|js)'],
+  testMatch: ['**/*.(test|spec).(ts|js)'],
   testEnvironment: 'node',
   coverageDirectory: 'coverage',
   coverageThreshold: {
@@ -17,10 +17,6 @@ module.exports = {
       functions: 80,
       lines: 80,
       statements: -10
-    },
-    './src/': {
-      branches: 80,
-      statements: 80
     }
   }
 };

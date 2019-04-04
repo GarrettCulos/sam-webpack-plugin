@@ -15,7 +15,9 @@ releaseFilters: &releaseFilters
 masterFilters: &masterFilters
   filters:
     branches:
-      only: master
+      only:
+        - master
+        - dev
 
 jobs:
   install:

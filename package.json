@@ -1,5 +1,5 @@
 {
-  "name": "sam-lambda-plugin",
+  "name": "sam-webpack-plugin",
   "version": "0.0.1",
   "description": "Webpack plugin for building minimal AWS SAM apis",
   "author": "Garrett Culos",

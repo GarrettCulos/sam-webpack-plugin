@@ -1,6 +1,6 @@
 {
   "name": "sam-webpack-plugin",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Webpack plugin for building minimal AWS SAM apis",
   "author": "Garrett Culos",
   "license": "MIT",
@@ -67,7 +67,7 @@
       "pre-commit": "npm run prettier:quick && npm run test && npm run lint && npm run build.prod && npm run example.build.prod"
     }
   },
-  "main": "lib/index.js",
+  "main": "lib/prod/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/GarrettCulos/sam-webpack-plugin"

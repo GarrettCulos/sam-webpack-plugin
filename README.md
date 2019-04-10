@@ -2,7 +2,9 @@
   <a href="https://circleci.com/gh/garrettculos/sam-webpack-plugin/tree/dev">
     <img src="https://circleci.com/gh/GarrettCulos/sam-webpack-plugin.svg?style=shield&circle-token=e22c541987ebae9756fcf4ab3774cf887d20bfa0" alt="Build Status">
   </a>  
-  <a href="https://codecov.io/github/garrettculos/sam-webpack-plugin?branch=dev"><img src="https://img.shields.io/codecov/c/github/garrettculos/sam-webpack-plugin/dev.svg" alt="Coverage Status"></a>
+  <a href="https://codecov.io/gh/GarrettCulos/sam-webpack-plugin">
+  <img src="https://codecov.io/gh/GarrettCulos/sam-webpack-plugin/branch/master/graph/badge.svg" />
+</a>
   <a href="https://www.npmjs.com/package/sam-webpack-plugin"><img src="https://img.shields.io/npm/dt/sam-webpack-plugin.svg" alt="Downloads"></a>
   <a href="https://www.npmjs.com/package/sam-webpack-plugin"><img src="https://img.shields.io/npm/v/sam-webpack-plugin.svg" alt="Version"></a>
   <a href="https://www.npmjs.com/package/sam-webpack-plugin"><img src="https://img.shields.io/npm/l/sam-webpack-plugin.svg" alt="License"></a>

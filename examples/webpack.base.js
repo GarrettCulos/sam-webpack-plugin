@@ -1,7 +1,7 @@
 const glob = require('glob');
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
-const SamWebpackPlugin = require('../dist/prod');
+const { SamWebpackPlugin } = require('../lib/prod');
 const getEntries = pattern => {
   console.log(pattern, glob.sync(pattern));
   return glob.sync(pattern).reduce((acc, file) => {

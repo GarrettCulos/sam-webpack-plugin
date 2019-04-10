@@ -7,8 +7,8 @@
   "scripts": {
     "build": "webpack --config webpack.dev.js",
     "build.prod": "webpack --config webpack.prod.js",
-    "example.build": "webpack --config examples/webpack.config.js",
-    "example.build.prod": "webpack --config examples/webpack.prod.config.js",
+    "example.build": "webpack --config examples/webpack.js",
+    "example.build.prod": "webpack --config examples/webpack.prod.js",
     "clean": "rimraf node_modules dist && npm install",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "test": "jest --coverage",

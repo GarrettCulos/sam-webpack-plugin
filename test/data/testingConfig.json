@@ -1,0 +1,10 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Transform": "AWS::Serverless-2016-10-31",
+  "Description": "example repo",
+  "Globals": {
+    "Api": { "Cors": { "AllowMethods": "*", "AllowHeaders": "*", "AllowOrigin": "*" } },
+    "Function": { "Runtime": "nodejs8.10", "Timeout": 6 }
+  },
+  "Resources": {}
+}

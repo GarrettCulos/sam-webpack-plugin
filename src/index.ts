@@ -3,11 +3,24 @@ import path from 'path';
 import { createAction, mkdirAction, rimrafAction, copyAction } from './actions';
 const pluginName = 'SamWebpackPlugin';
 
-class SamWebpackPlugin {
+const alphabetizeObject = (obj: any) => {
+  return Object.keys(obj)
+    .sort()
+    .reduce((sortedObject: any, key: string) => {
+      if (typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
+        sortedObject[key] = alphabetizeObject(obj[key]);
+      } else {
+        sortedObject[key] = obj[key];
+      }
+      return sortedObject;
+    }, {});
+};
+
+export class SamWebpackPlugin {
   declarationRegex = /(?<=@WebpackLambda\()([^\)]+)(?=(\)))/g;
   deploymentFolder: string;
-  options: { [optionName: string]: any };
-  layers: { [optionName: string]: string };
+  options: { [optionName: string]: any } = {};
+  layers: { [optionName: string]: string } = {};
   baseTemplate: any;
 
   /**
@@ -17,7 +30,13 @@ class SamWebpackPlugin {
    * @param {String} options.output
    * @param {Boolean} options.verbose
    */
-  constructor(d: { output: string; verbose: boolean; layers: { [name: string]: string }; baseTemplate: string }) {
+  constructor(d: {
+    output?: string;
+    requireTxt?: boolean;
+    verbose?: boolean;
+    baseTemplate: string;
+    layers?: { [name: string]: string };
+  }) {
     /**
      * define regex's
      */
@@ -36,7 +55,15 @@ class SamWebpackPlugin {
     if (d.verbose && typeof d.verbose !== 'boolean') {
       throw `[${pluginName}]: options.output must be a boolean`;
     }
-    this.options = { verbose: d.verbose || false };
+    this.options.verbose = d.verbose || false;
+
+    /**
+     * verbose setting must be a boolean if set
+     */
+    if (d.requireTxt && typeof d.requireTxt !== 'boolean') {
+      throw `[${pluginName}]: options.requireTxt must be a boolean`;
+    }
+    this.options.requireTxt = d.requireTxt || false;
 
     /**
      * layers setting must be an array if set
@@ -77,21 +104,55 @@ class SamWebpackPlugin {
     Array.isArray(dependencies) &&
       dependencies.forEach(dependency => {
         if (dependency.request) {
-          deps.push({ request: dependency.request });
-          // if (dependency.request === 'mysql') {
-          //   dependency.module.reasons.forEach(reason => {
-          //     console.log(reason.module);
-          //   });
-          // }
-        }
-        // console.log(dependency.module && dependency.module.issuer && dependency.module.issuer.dependencies);
-        if (dependency.module && dependency.module && dependency.module.dependencies) {
-          deps.push(...this.logDependencies(dependency.module.dependencies));
+          const notPath = dependency.request === path.basename(dependency.request);
+          const externalType = dependency.module && dependency.module.externalType;
+          const subDependencies = dependency.module && dependency.module.dependencies;
+          if (subDependencies) {
+            deps.push(...this.logDependencies(subDependencies));
+          }
+          if (notPath) {
+            deps.push({ request: dependency.request, type: externalType });
+          }
         }
       });
     return deps;
   }
 
+  getPackageDependencies(packageName: string, nodeModulesPath: string): string[] {
+    try {
+      const content = fs.readFileSync(path.join(nodeModulesPath, packageName, 'package.json'), 'utf8');
+
+      const pkg = JSON.parse(content);
+      const dependencies = pkg && pkg.dependencies ? Object.keys(pkg.dependencies) : [];
+      const phantomDependencies = pkg && pkg._phantomChildren ? Object.keys(pkg._phantomChildren) : [];
+      return [...dependencies, ...phantomDependencies];
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  getAllDependencies(depStrings: string | string[], nodeModulesPath: string): string[] {
+    const unloadedDeps: string[] = Array.isArray(depStrings) ? depStrings : [depStrings];
+    const loadedDeps: string[] = [];
+    while (unloadedDeps.length > 0) {
+      const currentDeps = unloadedDeps.shift();
+      try {
+        const deps = this.getPackageDependencies(currentDeps, nodeModulesPath);
+        const newDeps = deps.filter(dep => !loadedDeps.includes(dep));
+        unloadedDeps.push(...newDeps);
+        loadedDeps.push(currentDeps);
+      } catch (error) {
+        console.warn(`WARN: Lambda Webpack Plugin: ${error}`);
+        // console.error(error);
+      }
+    }
+    return loadedDeps;
+  }
+
+  /**
+   * webpack plugin apply function
+   * @param compiler
+   */
   apply(compiler: any) {
     const plugin = {
       name: pluginName
@@ -103,9 +164,9 @@ class SamWebpackPlugin {
     const globals: any = {
       entries: {},
       outputPath: compiler.options.output.path,
-      deployFolder: path.join(compiler.options.context, this.deploymentFolder)
+      deployFolder: path.join(compiler.options.context, this.deploymentFolder),
+      alias: compiler.options.resolve.alias
     };
-
     /**
      * All entry files will be checked for lambda declaration. If decorator is present, add config, context, path, and filename to globals.entries
      * @param {*} context
@@ -143,9 +204,18 @@ class SamWebpackPlugin {
       compilation.chunks.forEach((chunk: any) => {
         if (globals.entries[chunk.name]) {
           globals.entries[chunk.name].files = chunk.files;
-          globals.entries[chunk.name].dependencies = this.logDependencies(chunk.entryModule.dependencies);
+          globals.entries[chunk.name].dependencies = this.logDependencies(chunk.entryModule.dependencies).reduce(
+            (acc, key) => {
+              if (!acc.find((dep: any) => dep.request === key.request)) {
+                acc.push(key);
+              }
+              return acc;
+            },
+            []
+          );
         }
       });
+
       callback();
     };
 
@@ -191,44 +261,79 @@ class SamWebpackPlugin {
         commands.push(mkdirAction({ source: path.join(entryPath, 'node_modules') }, this.options));
 
         /**
-         * copy dependencies into node_modules folder ( or ??? create requirements.txt)
+         * copy first layer of dependencies into requirements.txt
          */
-        entry.dependencies.forEach((dependency: any) => {
-          let source = undefined;
-          if (this.layers[dependency.request]) {
-            source = this.layers[dependency.request];
-          } else {
-            source = path.join(entry.context, 'node_modules', dependency.request);
-          }
+        if (this.options.requireTxt) {
+          const dependenciesFile = entry.dependencies.map((deps: any) => deps.request).join(' \n');
           commands.push(
-            copyAction({ source, destination: path.join(entryPath, 'node_modules', dependency.request) }, this.options)
+            createAction(
+              {
+                source: path.join(entryPath, 'requirements.txt'),
+                content: dependenciesFile
+              },
+              this.options
+            )
           );
-        });
+        }
+
+        /**
+         * copy all dependencies into deployment folder
+         */
+        if (!this.options.requireTxt) {
+          const allDependencies = entry.dependencies.reduce((acc: string[], dependency: any) => {
+            if (this.layers && this.layers[dependency.request]) {
+              acc.push(dependency.request);
+            } else if (dependency.type !== undefined) {
+              const deps = this.getAllDependencies(dependency.request, path.join(entry.context, 'node_modules'));
+              acc.push(...deps);
+            }
+            return acc;
+          }, []);
+
+          allDependencies.forEach((dependency: string) => {
+            let source = undefined;
+            if (this.layers && this.layers[dependency]) {
+              source = path.join(this.layers[dependency], '**/*');
+            } else {
+              source = path.join(entry.context, 'node_modules', dependency, '**/*');
+            }
+            commands.push(
+              copyAction({ source, destination: path.join(entryPath, 'node_modules', dependency) }, this.options)
+            );
+          });
+        }
 
         /**
          * merge entry with base cf template
          */
         // TODO: when file name is already in the template throw error.
+        const functionTemplate = alphabetizeObject({
+          [`Function${entry.filename.replace(/-/g, '')}`]: {
+            ...entry.config,
+            ['Type']: 'AWS::Serverless::Function',
+            ['Properties']: {
+              ...entry.config.Properties,
+              ...entry.config.properties,
+              ['CodeUri']: `./${entryCodeUriPath}`
+            }
+          }
+        });
+
         this.baseTemplate = {
           ...this.baseTemplate,
           Resources: {
             ...this.baseTemplate.Resources,
-            [`Function_${entry.filename}`]: {
-              ...entry.config,
-              ['Type']: 'AWS::ApiGateway::Method',
-              ['Properties']: {
-                ...entry.config.Properties,
-                ...entry.config.properties,
-                ['CodeUri']: `./${entryCodeUriPath}`
-              }
-            }
+            ...functionTemplate
           }
         };
       });
 
       commands.push(
         createAction(
-          { source: path.join(globals.deployFolder, 'template.json'), content: JSON.stringify(this.baseTemplate) },
+          {
+            source: path.join(globals.deployFolder, 'template.json'),
+            content: JSON.stringify(JSON.parse(JSON.stringify(this.baseTemplate)))
+          },
           this.options
         )
       );
@@ -247,5 +352,3 @@ class SamWebpackPlugin {
     compiler.hooks.done.tapAsync(plugin, createLambdaDeployments);
   }
 }
-
-module.exports = SamWebpackPlugin;

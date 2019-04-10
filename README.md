@@ -60,14 +60,6 @@ On build, FOR EACH entry having the `@WebpackLambda` decorator, the content with
 
 ## TODO
 
-x add plugin options verification
-x expand on jsdoc descriptions
-
-x add docs on how plugin works.
-
-x create git project (prettier, ci/cd to npm, example projects)
-
-- add tests
-- deploy to npm
 - add plugin JSON object verification
 - explore decorator loader for @WebpackLambda
+- fix locally defined external package dependency imports

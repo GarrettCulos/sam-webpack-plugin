@@ -16,9 +16,8 @@
 
 ## Project Goal / Use Cases
 
-- create the smallest lambda functions possible
-- create a development environment thats as fast as possible
-- make it the primary objective writing code and not deploying it
+- Create the smallest lambda functions possible.
+- Create a development environment that allows for local development of lambda functions with short iteration times.
 - 100 deploys a day :boom:
 
 ### Use case: Express API migration

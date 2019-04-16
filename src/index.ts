@@ -79,7 +79,11 @@ export class SamWebpackPlugin {
     if (!d.baseTemplate || typeof d.baseTemplate !== 'string') {
       throw `[${pluginName}]: options.baseTemplate must be of defined and of type String`;
     }
-    this.baseTemplate = JSON.parse(fs.readFileSync(d.baseTemplate, 'utf8'));
+    try {
+      this.baseTemplate = JSON.parse(fs.readFileSync(d.baseTemplate, 'utf8'));
+    } catch (error) {
+      throw `[${pluginName}]: Error loading/parsing baseTemplate`;
+    }
   }
 
   /**
@@ -172,26 +176,35 @@ export class SamWebpackPlugin {
      * @param {*} context
      * @param {*} entries
      */
-    const registerEntryLambdaFunctions = (context: any, entries: any) => {
+    const registerEntryLambdaFunctions = (context: any, entries: any | string) => {
       // register entries with lambda function parser
+      if (typeof entries === 'string') {
+        throw `[${pluginName}]: webpack entries option must be an object not String.`;
+      }
       globals.entries = Object.keys(entries).reduce((acc, entry) => {
-        const content = fs.readFileSync(entries[entry], 'utf8');
-        const config = this.parseLambdaDeclaration(content);
-        if (config) {
-          return {
-            ...acc,
-            [entry]: {
-              key: entry,
-              context,
-              path: entries[entry],
-              files: [],
-              filename: path.basename(entry, path.extname(entry)),
-              config,
-              dependencies: undefined
-            }
-          };
+        try {
+          const content = fs.readFileSync(entries[entry], 'utf8');
+          const config = this.parseLambdaDeclaration(content);
+          if (config) {
+            return {
+              ...acc,
+              [entry]: {
+                key: entry,
+                context,
+                path: entries[entry],
+                files: [],
+                filename: path.basename(entry, path.extname(entry)),
+                config,
+                dependencies: []
+              }
+            };
+          }
+          return acc;
+        } catch (err) {
+          // Need to push build error to webpack.
+          console.error('error parsing entry content');
+          return acc;
         }
-        return acc;
       }, {});
     };
 

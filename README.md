@@ -39,21 +39,39 @@ We recommend you have a solid knowledge base of the following technologies, AWS 
 
 Import `SamWebpackPlugin` into your webpack config file and add the plugin to the plugin block like so;
 
-```
-    ...
+```js
+  {
+    ...,
     plugins:[
-        ...
+        ...,
         new SamWebpackPlugin({
             baseTemplate: './template.json'
         })
         ...
     ]
+  }
 ```
 
-The `template.json` file is the base SAM/CloudFront template used for all defined lambda functions.
+The `template.json` file is the base SAM/CloudFront template used for all defined lambda functions. The configuration object that SamWebpackPlugin accepts has the following shape:
+
+```ts
+/**
+ * @param {String} baseTemplate -- base CF/SAM template
+ * @param {Object} layer -- Hashmap of of locally defined and paths to sources
+ * @param {String} output -- absolute/relative path to output directory
+ * @param {Boolean} verbose -- verbose logging
+ */
+{
+   baseTemplate: String,
+   layers: { [name: String]: String },
+   output: String,
+   verbose: Boolean
+}
+```
+
 Before each lambda function, we can define our SAM config with the following;
 
-```
+```js
 /*
 @WebpackLambda({
   "Properties": {
@@ -81,7 +99,7 @@ On build, FOR EACH entry having the `@WebpackLambda` decorator, the content with
 
 ## Working with local external packages
 
-- locally defined external packages can be loaded into the deployment package by using the layers option (hes this is confusing because its not lambda layers). These locally defined external files will be copied into your deployment packages `node_modules` file.
+- locally defined external packages can be loaded into the deployment package by using the layers option (yes this is confusing because its not lambda layers). These locally defined external files will be copied into your deployment packages `node_modules` file.
 
 ## Limitations
 

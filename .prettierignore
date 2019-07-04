@@ -1,4 +1,8 @@
-node_modules/
-dist/
+.vscode
+.github
+.circleci
 lib/
 coverage/
+node_modules/
+dist/
+lambda-sam-deploy/

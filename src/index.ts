@@ -105,20 +105,29 @@ export class SamWebpackPlugin {
    */
   logDependencies(dependencies: any[]) {
     const deps: { request: string; [other: string]: any }[] = [];
-    Array.isArray(dependencies) &&
-      dependencies.forEach(dependency => {
-        if (dependency.request) {
-          const notPath = dependency.request === path.basename(dependency.request);
-          const externalType = dependency.module && dependency.module.externalType;
-          const subDependencies = dependency.module && dependency.module.dependencies;
-          if (subDependencies) {
-            deps.push(...this.logDependencies(subDependencies));
-          }
-          if (notPath) {
-            deps.push({ request: dependency.request, type: externalType });
-          }
+    const trackedDependencies: string[] = [];
+    const dependencyQueue = dependencies;
+    while (dependencyQueue && Array.isArray(dependencyQueue) && dependencyQueue.length > 0) {
+      const dependency = dependencyQueue[0];
+      // console.log('togo', dependencies.map(dep => dep.request));
+      if (dependency.request) {
+        const notPath = dependency.request === path.basename(dependency.request);
+        const externalType = dependency.module && dependency.module.externalType;
+        const subDependencies = dependency.module && dependency.module.dependencies;
+        if (subDependencies) {
+          // console.log('tracked', trackedDependencies);
+          const newDeps = subDependencies.filter(
+            (dep: any) => (dep.request && !trackedDependencies.includes(dep.request)) || !dep.request
+          );
+          deps.push(...newDeps);
         }
-      });
+        if (notPath) {
+          deps.push({ request: dependency.request, type: externalType });
+        }
+        trackedDependencies.push(dependency.request);
+      }
+      dependencies.shift();
+    }
     return deps;
   }
 

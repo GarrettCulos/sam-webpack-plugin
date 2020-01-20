@@ -1,6 +1,6 @@
 {
   "name": "sam-webpack-plugin",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Webpack plugin for building minimal AWS SAM apis",
   "author": "Garrett Culos",
   "license": "MIT",

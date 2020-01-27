@@ -249,6 +249,8 @@ export class SamWebpackPlugin {
      * @param {*} callback
      */
     const createLambdaDeployments = (compilation: any, callback: any) => {
+      console.log('Creating Lambda Package');
+      console.time('Create lambda Package Timer');
       const entries = Object.keys(globals.entries).map(key => globals.entries[key]);
       const commands = [];
 
@@ -311,7 +313,6 @@ export class SamWebpackPlugin {
             }
             return acc;
           }, []);
-
           allDependencies.forEach((dependency: string) => {
             let source = undefined;
             if (this.layers && this.layers[dependency]) {
@@ -359,14 +360,24 @@ export class SamWebpackPlugin {
           this.options
         )
       );
-
       if (commands.length) {
-        commands.reduce((previous: Promise<any>, fn: Function) => {
+        const chain = commands.reduce((previous: Promise<any>, fn: Function) => {
           return previous.then(retVal => fn(retVal)).catch(err => console.log(err));
         }, Promise.resolve());
+        chain
+          .then(() => {
+            console.timeEnd('Create lambda Package Timer');
+            callback();
+          })
+          .catch(err => {
+            console.timeEnd('Create lambda Package Timer');
+            console.error(err);
+            callback();
+          });
+      } else {
+        console.timeEnd('Create lambda Package Timer');
+        callback();
       }
-
-      callback();
     };
 
     compiler.hooks.entryOption.tap(plugin, registerEntryLambdaFunctions);

@@ -26,6 +26,7 @@ export class SamWebpackPlugin {
   /**
    * @param {Object} options
    * @param {String} options.baseTemplate [required]
+   * @param {String} options.dynamoDb
    * @param {Array} options.layers
    * @param {String} options.output
    * @param {Boolean} options.verbose
@@ -35,6 +36,7 @@ export class SamWebpackPlugin {
     requireTxt?: boolean;
     verbose?: boolean;
     baseTemplate: string;
+    dynamoDb?: string;
     layers?: { [name: string]: string };
   }) {
     /**
@@ -72,6 +74,14 @@ export class SamWebpackPlugin {
       throw `[${pluginName}]: options.layers must be of type object`;
     }
     this.layers = d.layers;
+
+    /**
+     * baseTemplate must be of type string
+     */
+    if (d.dynamoDb && typeof d.dynamoDb !== 'string') {
+      throw `[${pluginName}]: options.dynamoDb of type String`;
+    }
+    this.options.dynamoDb = d.dynamoDb;
 
     /**
      * baseTemplate must be of type string
@@ -350,6 +360,20 @@ export class SamWebpackPlugin {
           }
         };
       });
+
+      /**
+       * If dynamoDb json file is provided, read and copy into baseTempalte
+       */
+      if (this.options.dynamoDb) {
+        const dynamoDbTableHash = JSON.parse(fs.readFileSync(`${this.options.dynamoDb}`, 'utf8'));
+        const tableNames = Object.keys(dynamoDbTableHash);
+        tableNames.forEach(tableName => {
+          this.baseTemplate['Resources'][tableName] = {
+            ['Type']: 'AWS::DynamoDB::Table',
+            ['Properties']: dynamoDbTableHash[tableName]
+          };
+        });
+      }
 
       commands.push(
         createAction(

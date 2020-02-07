@@ -93,6 +93,7 @@ const lambdaFunctions = {
         [DATABASE]: databaseWebpackConfig.output.path,
         [MIDDLEWARE]: middlewareWebpackConfig.output.path
       },
+      dynamoDb: './examples/dynamodb-tables.json',
       output: './examples/lambda-sam-deploy',
       baseTemplate: path.resolve(__dirname, './template.json')
     })

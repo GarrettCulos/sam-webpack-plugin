@@ -143,6 +143,7 @@ export class SamWebpackPlugin {
 
   getPackageDependencies(packageName: string, nodeModulesPath: string): string[] {
     try {
+      // check alias's
       const content = fs.readFileSync(path.join(nodeModulesPath, packageName, 'package.json'), 'utf8');
 
       const pkg = JSON.parse(content);
@@ -314,15 +315,42 @@ export class SamWebpackPlugin {
          * copy all dependencies into deployment folder
          */
         if (!this.options.requireTxt) {
-          const allDependencies = entry.dependencies.reduce((acc: string[], dependency: any) => {
+          // unloadedDeps,
+          // loadeddeps
+          const allDependencies: string[] = [];
+          const unCheckedModules = [...entry.dependencies];
+          const checkedModules: string[] = [];
+          while (unCheckedModules.length > 0) {
+            const dependency = unCheckedModules[0];
             if (this.layers && this.layers[dependency.request]) {
-              acc.push(dependency.request);
-            } else if (dependency.type !== undefined) {
-              const deps = this.getAllDependencies(dependency.request, path.join(entry.context, 'node_modules'));
-              acc.push(...deps);
+              allDependencies.push(dependency.request);
+              checkedModules.push(dependency.request);
+            } else if (
+              dependency.type !== undefined &&
+              dependency.type !== null &&
+              dependency.type !== 'null' &&
+              dependency.type !== 'undefined'
+            ) {
+              // NOTE: Ideally dependency.module instanceof NormalModule would be used, but im not sure where to import that class
+              const isNormalModule =
+                dependency.module &&
+                dependency.module.buildInfo &&
+                dependency.module.buildInfo.hasOwnProperty('fileDependencies');
+
+              if (!isNormalModule) {
+                const deps = this.getAllDependencies(dependency.request, path.join(entry.context, 'node_modules'));
+                allDependencies.push(...deps);
+              } else {
+                unCheckedModules.push(
+                  ...dependency.module.dependencies.filter(
+                    (deps: any) => deps.module && !checkedModules.includes(deps.request)
+                  )
+                );
+              }
             }
-            return acc;
-          }, []);
+            unCheckedModules.shift();
+          }
+
           allDependencies.forEach((dependency: string) => {
             let source = undefined;
             if (this.layers && this.layers[dependency]) {

@@ -22,6 +22,7 @@ export class SamWebpackPlugin {
   options: { [optionName: string]: any } = {};
   layers: { [optionName: string]: string } = {};
   baseTemplate: any;
+  packageLock: any;
 
   /**
    * @param {Object} options
@@ -94,6 +95,11 @@ export class SamWebpackPlugin {
     } catch (error) {
       throw `[${pluginName}]: Error loading/parsing baseTemplate`;
     }
+
+    /**
+     * load package-lock deps list
+     */
+    this.packageLock = JSON.parse(fs.readFileSync(`./package-lock.json`, 'utf8'));
   }
 
   /**
@@ -119,13 +125,11 @@ export class SamWebpackPlugin {
     const dependencyQueue = dependencies;
     while (dependencyQueue && Array.isArray(dependencyQueue) && dependencyQueue.length > 0) {
       const dependency = dependencyQueue[0];
-      // console.log('togo', dependencies.map(dep => dep.request));
       if (dependency.request) {
         const notPath = dependency.request === path.basename(dependency.request);
         const externalType = dependency.module && dependency.module.externalType;
         const subDependencies = dependency.module && dependency.module.dependencies;
         if (subDependencies) {
-          // console.log('tracked', trackedDependencies);
           const newDeps = subDependencies.filter(
             (dep: any) => (dep.request && !trackedDependencies.includes(dep.request)) || !dep.request
           );
@@ -143,13 +147,11 @@ export class SamWebpackPlugin {
 
   getPackageDependencies(packageName: string, nodeModulesPath: string): string[] {
     try {
-      // check alias's
-      const content = fs.readFileSync(path.join(nodeModulesPath, packageName, 'package.json'), 'utf8');
-
-      const pkg = JSON.parse(content);
-      const dependencies = pkg && pkg.dependencies ? Object.keys(pkg.dependencies) : [];
-      const phantomDependencies = pkg && pkg._phantomChildren ? Object.keys(pkg._phantomChildren) : [];
-      return [...dependencies, ...phantomDependencies];
+      const pkg = this.packageLock && this.packageLock.dependencies && this.packageLock.dependencies[packageName];
+      if (pkg && pkg.requires) {
+        return Object.keys(pkg.requires);
+      }
+      return [];
     } catch (err) {
       throw err;
     }
@@ -321,10 +323,11 @@ export class SamWebpackPlugin {
           const unCheckedModules = [...entry.dependencies];
           const checkedModules: string[] = [];
           while (unCheckedModules.length > 0) {
+            // console.log(unCheckedModules);
             const dependency = unCheckedModules[0];
             if (this.layers && this.layers[dependency.request]) {
-              allDependencies.push(dependency.request);
-              checkedModules.push(dependency.request);
+              !allDependencies.includes(dependency.request) && allDependencies.push(dependency.request);
+              !checkedModules.includes(dependency.request) && checkedModules.push(dependency.request);
             } else if (
               dependency.type !== undefined &&
               dependency.type !== null &&
@@ -339,18 +342,20 @@ export class SamWebpackPlugin {
 
               if (!isNormalModule) {
                 const deps = this.getAllDependencies(dependency.request, path.join(entry.context, 'node_modules'));
-                allDependencies.push(...deps);
+                allDependencies.push(...deps.filter(d => !allDependencies.includes(d)));
+                !checkedModules.includes(dependency.request) && checkedModules.push(dependency.request);
               } else {
-                unCheckedModules.push(
+                const newModules = [
                   ...dependency.module.dependencies.filter(
                     (deps: any) => deps.module && !checkedModules.includes(deps.request)
                   )
-                );
+                ];
+                !checkedModules.includes(dependency.request) && checkedModules.push(dependency.request);
+                unCheckedModules.push(...newModules);
               }
             }
             unCheckedModules.shift();
           }
-
           allDependencies.forEach((dependency: string) => {
             let source = undefined;
             if (this.layers && this.layers[dependency]) {

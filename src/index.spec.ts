@@ -1,4 +1,5 @@
 import { SamWebpackPlugin } from './index';
+import testPackageLock from './test1.package-lock.json';
 
 describe('sanity checks', () => {
   it('export is valid class', () => {
@@ -63,6 +64,15 @@ describe('parseLambdaDeclaration', () => {
 describe('logDependencies', () => {
   it('logDependencies should be defined', () => {});
   it('logDependencies should return string of dependencies', () => {});
+});
+
+describe('getDependencies', () => {
+  it('handles requires with non dependency requires (like ws -> async-limiter)', () => {
+    const SamPlugin = new SamWebpackPlugin({ baseTemplate: './test/data/testingConfig.json' });
+    const depsArray = SamPlugin.recursiveGetDepsRequires(testPackageLock.dependencies);
+    expect(depsArray.includes('ws')).toBeTruthy();
+    expect(depsArray.includes('async-limiter')).toBeTruthy();
+  });
 });
 
 describe('apply method', () => {

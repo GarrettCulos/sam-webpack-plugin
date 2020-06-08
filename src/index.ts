@@ -145,11 +145,25 @@ export class SamWebpackPlugin {
     return deps;
   }
 
+  recursiveGetDepsRequires(deps: { [s: string]: any }) {
+    return Object.keys(deps).reduce((flatDeps, key) => {
+      if (typeof deps[key] === 'string') {
+        flatDeps.push(key);
+      }
+      if (deps[key].requires) {
+        flatDeps.push(...this.recursiveGetDepsRequires(deps[key].requires));
+      }
+      if (deps[key].dependencies) {
+        flatDeps.push(...this.recursiveGetDepsRequires(deps[key].dependencies));
+      }
+      return flatDeps;
+    }, []);
+  }
   getPackageDependencies(packageName: string, nodeModulesPath: string): string[] {
     try {
       const pkg = this.packageLock && this.packageLock.dependencies && this.packageLock.dependencies[packageName];
       if (pkg && pkg.requires) {
-        return Object.keys(pkg.requires);
+        return this.recursiveGetDepsRequires(pkg.requires);
       }
       return [];
     } catch (err) {
@@ -187,6 +201,7 @@ export class SamWebpackPlugin {
     /**
      * globally available data
      */
+    console.log(compiler.context);
     const globals: any = {
       entries: {},
       outputPath: compiler.options.output.path,

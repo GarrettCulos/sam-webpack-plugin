@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { createAction, mkdirAction, rimrafAction, copyAction } from './actions';
+import { uniqueArray } from './utils';
 const pluginName = 'SamWebpackPlugin';
 
 const alphabetizeObject = (obj: any) => {
@@ -173,6 +174,7 @@ export class SamWebpackPlugin {
 
   getAllDependencies(depStrings: string | string[], nodeModulesPath: string): string[] {
     const unloadedDeps: string[] = Array.isArray(depStrings) ? depStrings : [depStrings];
+    this.options.verbose && console.log(unloadedDeps);
     const loadedDeps: string[] = [];
     while (unloadedDeps.length > 0) {
       const currentDeps = unloadedDeps.shift();
@@ -201,7 +203,6 @@ export class SamWebpackPlugin {
     /**
      * globally available data
      */
-    console.log(compiler.context);
     const globals: any = {
       entries: {},
       outputPath: compiler.options.output.path,
@@ -341,7 +342,8 @@ export class SamWebpackPlugin {
             // console.log(unCheckedModules);
             const dependency = unCheckedModules[0];
             if (this.layers && this.layers[dependency.request]) {
-              !allDependencies.includes(dependency.request) && allDependencies.push(dependency.request);
+              !allDependencies.includes(dependency.request) &&
+                allDependencies.push(...this.recursiveGetDepsRequires(dependency.request));
               !checkedModules.includes(dependency.request) && checkedModules.push(dependency.request);
             } else if (
               dependency.type !== undefined &&
@@ -371,7 +373,7 @@ export class SamWebpackPlugin {
             }
             unCheckedModules.shift();
           }
-          allDependencies.forEach((dependency: string) => {
+          uniqueArray(allDependencies).forEach((dependency: string) => {
             let source = undefined;
             if (this.layers && this.layers[dependency]) {
               source = path.join(this.layers[dependency], '**/*');

@@ -359,7 +359,8 @@ export class SamWebpackPlugin {
 
               if (!isNormalModule) {
                 const deps = this.getAllDependencies(dependency.request, path.join(entry.context, 'node_modules'));
-                allDependencies.push(...deps.filter(d => !allDependencies.includes(d)));
+                this.options.verbose && console.log(dependency.request, deps);
+                allDependencies.push(...deps);
                 !checkedModules.includes(dependency.request) && checkedModules.push(dependency.request);
               } else {
                 const newModules = [

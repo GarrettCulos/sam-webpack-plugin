@@ -62,7 +62,7 @@ const decodeJwtToken = (token: string) => Promise.resolve({ roles: [] });
       }
     }
   }
-})
+})WebpackLanbda@
 */
 if (graphql) {
 }

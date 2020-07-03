@@ -14,7 +14,7 @@ const lambdaDb = new LambdaConnect();
       }
     }
   }
-})
+})WebpackLanbda@
 */
 export const lambdaHandler = async (event: any, context: any) => {
   try {

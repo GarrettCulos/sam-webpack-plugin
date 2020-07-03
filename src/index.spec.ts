@@ -12,7 +12,7 @@ describe('constructor defines variables and throws errors', () => {
   it("plugin constructor defines regex's", () => {
     const SamPlugin = new SamWebpackPlugin({ baseTemplate: './test/data/testingConfig.json' });
     expect(SamPlugin.declarationRegex).toBeDefined();
-    expect(SamPlugin.declarationRegex).toEqual(/(?<=@WebpackLambda\()([^\)]+)(?=(\)))/g);
+    expect(SamPlugin.declarationRegex).toEqual(/(?<=@WebpackLambda\()(.*)(?=\)WebpackLanbda@)/s);
   });
 
   it('plugin constructor defines deployFolder', () => {

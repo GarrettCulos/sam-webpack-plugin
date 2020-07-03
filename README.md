@@ -86,11 +86,11 @@ Before each lambda function, we can define our SAM config with the following;
       }
     }
   }
-})
+})WebpackLanbda@
 */
 ```
 
-On build, FOR EACH entry having the `@WebpackLambda` decorator, the content within each `@WebpackLambda(*)` will be parsed into the baseTemplate config. Note:
+On build, FOR EACH entry having the `@WebpackLambda` decorator-ish style markup, the content within each `@WebpackLambda(*)WebpackLanbda@` will be parsed into the baseTemplate config. Note:
 
 - ANY CodeUri provided within each decorate will be replaced by the plugin
 - The `@WebpackLambda()` must be declared within a comment block like above

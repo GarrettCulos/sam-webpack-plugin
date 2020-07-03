@@ -12,7 +12,7 @@
       }
     }
   }
-})
+})WebpackLanbda@
 */
 export const lambdaHandler = async (event: any, context: any) => {
   try {

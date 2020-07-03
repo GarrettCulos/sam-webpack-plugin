@@ -18,7 +18,7 @@ const alphabetizeObject = (obj: any) => {
 };
 
 export class SamWebpackPlugin {
-  declarationRegex = /(?<=@WebpackLambda\()([^\)]+)(?=(\)))/g;
+  declarationRegex = /(?<=@WebpackLambda\()(.*)(?=\)WebpackLanbda@)/s;
   deploymentFolder: string;
   options: { [optionName: string]: any } = {};
   layers: { [optionName: string]: string } = {};
